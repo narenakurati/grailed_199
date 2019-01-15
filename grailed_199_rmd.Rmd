@@ -5,26 +5,54 @@ date: "1/15/2019"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r, echo = FALSE}
+library(testthat)
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(gridExtra))
+library(class)
+library(ISLR)
+suppressPackageStartupMessages(library(caret))
+library(e1071)
+suppressPackageStartupMessages(library(MASS))
+library(reshape2)
+library(ggcorrplot)
+suppressPackageStartupMessages(library(boot))
+suppressPackageStartupMessages(library(resample))
+library(rpart)
+library(tree)
+suppressPackageStartupMessages(library(randomForest))
+library(rvest)
 ```
 
-## R Markdown
+#Using rvest to pull first load page of data
+```{r, warning=FALSE, tidy.opts=list(width.cutoff=80), tidy = TRUE}
+grailed <- read_html("https://www.grailed.com/sold/")
+grailed
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+sample_url <- read_html('https://www.imdb.com/search/title?count=100&release_date=2016,2016&title_type=feature')
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+#test <- grailed %>% html_nodes("homepage-wrapper") %>% html_nodes("feed-item")
+#test <- grailed %>% html_nodes('img')
+#test <- grailed %>% html_nodes('.feed-item:nth-child(2)')
+test <- grailed %>% html_nodes('.feed-item:nth-child(1) img') %>% html_attr("href")
+test <- grailed %>% html_nodes('feed-item') %>% html_attr("href")
+test <- grailed %>% html_attr("img")
 
-```{r cars}
-summary(cars)
+#.feed-item~ .feed-item+ .feed-item img , .feed-item:nth-child(1) img
+
+test <- read_html("https://www.grailed.com/sold/")
+html_nodes(test, "feed-item")
+html_attr(test, "class")
 ```
 
-## Including Plots
+#After navigating to item page
+```{r, warning=FALSE, tidy.opts=list(width.cutoff=80), tidy = TRUE}
+#specific item
+sold_item_test <- read_html('https://www.grailed.com/listings/7804580-Acne-Studios-Acne-Studios-Kai-Reverse-Pav16-Pre-Beige-Melange-wool-sweater')
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+title <- sold_item_test %>% html_nodes('title') %>% html_text()
+#description <-sold_item_test %>% html_nodes("listing-description") %>% html_text("span")
+description <-sold_item_test %>% html_nodes("listing-description") %>% html_text("span")
+  
 ```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
