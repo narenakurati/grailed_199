@@ -121,11 +121,38 @@ pull_and_store(url)
 data[1,] <- pull_and_store(url)
 ```
 
+#Testing function
+```{r}
+#clear dataframe
+data <- setNames(data.frame(matrix(ncol = 6, nrow = 10)), c("title", "price", "brand", "size", "size", "time"))
+
+#ready urls
+url1 <- 'https://www.grailed.com/listings/7804580-Acne-Studios-Acne-Studios-Kai-Reverse-Pav16-Pre-Beige-Melange-wool-sweater'
+
+url2 <- 'https://www.grailed.com/listings/6914524-John-Elliott--Kempy--Black-Wool-With-Leather-Overcoat-Coat-Size-1-S'
+
+url3 <- 'https://www.grailed.com/listings/7375573-Undercover-1999-Flannel-Trousers'
+
+url4 <- 'https://www.grailed.com/listings/7403289-John-Elliott-Camel-Wool-Topcoat'
+
+url5 <- 'https://www.grailed.com/listings/7245404-Sandro-Calf-Leather-Jacket--Cognac--SS15'
+
+data[1,] <- pull_and_store(url1)
+data[2,] <- pull_and_store(url2)
+data[3,] <- pull_and_store(url3)
+data[4,] <- pull_and_store(url4)
+data[5,] <- pull_and_store(url5)
+
+data
+```
+
 #Automate data retrieval
 ```{r, warning=FALSE, tidy.opts=list(width.cutoff=80), tidy = TRUE}
 sold_url <- 'https://www.grailed.com/sold'
 sold_page <- read_html(sold_url)
-image_url <- sold_page %>% html_nodes('') %*% html_attr('href')
-image_url <- sold_page %>% html_nodes(xpath = '//*[@id="homepage-v2"]/div/div/div[2]/div/div[2]/div/div[2]/div[1]') %>% html_attr('href')
+image_url <- sold_page %>% html_nodes('body class') %>% html_text()# %*% html_attr('href')
+image_url
+image_url <- sold_page %>% html_nodes(xpath = '//*[@id="homepage-v2"]/div/div/div[2]/div/div[2]/div/div[2]/div[1]')# %>% html_attr('href')
 
+system("./phantomjs scrape_final.js")
 ```
