@@ -52,7 +52,12 @@ html_attr(test, "class")
 sold_item_test <- read_html('https://www.grailed.com/listings/7804580-Acne-Studios-Acne-Studios-Kai-Reverse-Pav16-Pre-Beige-Melange-wool-sweater')
 
 title <- sold_item_test %>% html_nodes('title') %>% html_text()
-#description <-sold_item_test %>% html_nodes("listing-description") %>% html_text("span")
-description <-sold_item_test %>% html_nodes("listing-description") %>% html_text("span")
-  
+price <- sold_item_test %>% html_nodes('._sold') %>% html_text()
+brand <- sold_item_test %>% html_nodes('.jumbo a') %>% html_text()
+size <- sold_item_test %>% html_nodes('.listing-size') %>% html_text()
+#NW user <- sold_item_test %>% html_nodes('.ListingSellerCard') %>% html_text()
+#NW time_posted <- sold_item_test %>% html_nodes('.-time') %>% html_text()
+script <- sold_item_test %>% html_nodes('script') %>% html_text()
+script
+write.csv(script, file = "beans.txt"")
 ```
