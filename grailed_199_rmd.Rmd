@@ -23,6 +23,7 @@ library(rpart)
 library(tree)
 suppressPackageStartupMessages(library(randomForest))
 library(rvest)
+library(stringr)
 ```
 
 #Using rvest to pull first load page of data
@@ -49,6 +50,7 @@ html_attr(test, "class")
 #After navigating to item page
 ```{r, warning=FALSE, tidy.opts=list(width.cutoff=80), tidy = TRUE}
 #specific item
+
 sold_item_test <- read_html('https://www.grailed.com/listings/7804580-Acne-Studios-Acne-Studios-Kai-Reverse-Pav16-Pre-Beige-Melange-wool-sweater')
 
 title <- sold_item_test %>% html_nodes('title') %>% html_text()
@@ -56,8 +58,20 @@ price <- sold_item_test %>% html_nodes('._sold') %>% html_text()
 brand <- sold_item_test %>% html_nodes('.jumbo a') %>% html_text()
 size <- sold_item_test %>% html_nodes('.listing-size') %>% html_text()
 #NW user <- sold_item_test %>% html_nodes('.ListingSellerCard') %>% html_text()
-#NW time_posted <- sold_item_test %>% html_nodes('.-time') %>% html_text()
+
 script <- sold_item_test %>% html_nodes('script') %>% html_text()
-script
-write.csv(script, file = "beans.txt"")
+#we can pull time from this with "sold_at"
+#we can also pull user from "username"
+
+time <- script[7]
+time <- as.character(time)
+time <- regmatches(time, gregexpr("(?<=sold_at).*(?=sold_price.)", time, perl = TRUE))
+time <- gsub("[\"]","", time); time <- gsub(",","", time); time <- str_sub(time, 2)
+
+user <- script[7]
+user <- as.character(user)
+user <- regmatches(user, gregexpr("(?<=username).*(?=avatar_url)", user, perl = TRUE))
+user <- gsub("[\"]","", user); user <- gsub(",","", user); user <- str_sub(user, 2)
+
+#write.csv(time, file = "beans.txt")
 ```
