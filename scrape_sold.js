@@ -1,6 +1,4 @@
-// scrape_sold.js
-
-var url = 'https://www.grailed.com/sold';
+var url ='https://www.grailed.com/sold';
 var page = new WebPage()
 
 var fs = require('fs');

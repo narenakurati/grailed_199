@@ -146,13 +146,32 @@ data[5,] <- pull_and_store(url5)
 data
 ```
 
-#Automate data retrieval
+#Automate data retrieval w PhantomJS
 ```{r, warning=FALSE, tidy.opts=list(width.cutoff=80), tidy = TRUE}
-sold_url <- 'https://www.grailed.com/sold'
-sold_page <- read_html(sold_url)
-image_url <- sold_page %>% html_nodes('body class') %>% html_text()# %*% html_attr('href')
-image_url
-image_url <- sold_page %>% html_nodes(xpath = '//*[@id="homepage-v2"]/div/div/div[2]/div/div[2]/div/div[2]/div[1]')# %>% html_attr('href')
+# sold_url <- 'https://www.grailed.com/sold'
+# sold_page <- read_html(sold_url)
+# image_url <- sold_page %>% html_nodes('body class') %>% html_text()# %*% html_attr('href')
+# image_url
+# image_url <- sold_page %>% html_nodes(xpath = '//*[@id="homepage-v2"]/div/div/div[2]/div/div[2]/div/div[2]/div[1]')# %>% html_attr('href')
 
-system("./phantomjs scrape_final.js")
+url <- paste0('https://www.grailed.com/sold')
+lines <- readLines("scrape_sold.js")
+lines[1] <- paste0("var url ='", url , "';")
+writeLines(lines, "scrape_sold.js")
+
+system("./phantomjs scrape_sold.js")
+
+sold_page <- read_html("1.html")
+
+first_url <- sold_page %>% html_nodes(xpath = '//*[@id="homepage-v2"]/div/div/div[2]/div/div[2]/div/div[2]/div[1]/a') %>% xml_attr("href")
+
+second_url <- sold_page %>% html_nodes(xpath = '//*[@id="homepage-v2"]/div/div/div[2]/div/div[2]/div/div[2]/div[2]/a') %>% xml_attr("href")
+
+third_url <- sold_page %>% html_nodes(xpath = '//*[@id="homepage-v2"]/div/div/div[2]/div/div[2]/div/div[2]/div[3]/a') %>% xml_attr("href")
+
+fourth_url <- sold_page %>% html_nodes(xpath = '//*[@id="homepage-v2"]/div/div/div[2]/div/div[2]/div/div[2]/div[4]/a') %>% xml_attr("href")
+
+fifth_url <- sold_page %>% html_nodes(xpath = '//*[@id="homepage-v2"]/div/div/div[2]/div/div[2]/div/div[2]/div[5]/a') %>% xml_attr("href")
+
+test <- sold_page %>% html_nodes(xpath = '//*[@id="homepage-v2"]/div/div/div[2]/div/div[2]/div/div[2]/div[10]/a') %>% xml_attr("href")
 ```
