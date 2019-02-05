@@ -253,4 +253,14 @@ load_data <- function(){
 first_run <- load_data()
 second_run <- load_data()
 third_run <- load_data()
+fourth_run <- load_data()
+fifth_run <- load_data()
+sixth_run <- load_data()
+
+rm(merged)
+# merged <- join(first_run, second_run, by = "title", type = "left")
+merged <- full_join(first_run, fifth_run, by = "title")
+merged_1 <- full_join(first_run, sixth_run, by = "title")
+
+ggplot(data = first_run, aes(x=factor(brand))) + geom_bar(stat="count")
 ```
