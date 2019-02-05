@@ -52,6 +52,7 @@ html_attr(test, "class")
 #specific item
 
 sold_item_test <- read_html('https://www.grailed.com/listings/7804580-Acne-Studios-Acne-Studios-Kai-Reverse-Pav16-Pre-Beige-Melange-wool-sweater')
+sold_item_test <- read_html('https://www.grailed.com/listings/8129890-Nike---Off-White-Nike-x-Off-White-97-menta')
 
 title <- sold_item_test %>% html_nodes('title') %>% html_text()
 price <- sold_item_test %>% html_nodes('._sold') %>% html_text()
@@ -60,6 +61,17 @@ size <- sold_item_test %>% html_nodes('.listing-size') %>% html_text()
 #NW user <- sold_item_test %>% html_nodes('.ListingSellerCard') %>% html_text()
 
 script <- sold_item_test %>% html_nodes('script') %>% html_text()
+
+# script[6]
+# 
+# "sold_at" %in% toString(script[6])
+# toString(script[6])
+# grelp("sold_at", toString(script[6]))
+# 
+# for (i in 1:length(script)){
+#   'sold_at' %in% script[i]
+# }
+
 #we can pull time from this with "sold_at"
 #we can also pull user from "username"
 
@@ -124,7 +136,7 @@ data[1,] <- pull_and_store(url)
 #Testing function
 ```{r}
 #clear dataframe
-data <- setNames(data.frame(matrix(ncol = 6, nrow = 10)), c("title", "price", "brand", "size", "size", "time"))
+data <- setNames(data.frame(matrix(ncol = 6, nrow = 160)), c("title", "price", "brand", "size", "size", "time"))
 
 #ready urls
 url1 <- 'https://www.grailed.com/listings/7804580-Acne-Studios-Acne-Studios-Kai-Reverse-Pav16-Pre-Beige-Melange-wool-sweater'
@@ -164,6 +176,7 @@ system("./phantomjs scrape_sold.js")
 sold_page <- read_html("1.html")
 
 first_url <- sold_page %>% html_nodes(xpath = '//*[@id="homepage-v2"]/div/div/div[2]/div/div[2]/div/div[2]/div[1]/a') %>% xml_attr("href")
+first_url
 
 second_url <- sold_page %>% html_nodes(xpath = '//*[@id="homepage-v2"]/div/div/div[2]/div/div[2]/div/div[2]/div[2]/a') %>% xml_attr("href")
 
@@ -173,5 +186,68 @@ fourth_url <- sold_page %>% html_nodes(xpath = '//*[@id="homepage-v2"]/div/div/d
 
 fifth_url <- sold_page %>% html_nodes(xpath = '//*[@id="homepage-v2"]/div/div/div[2]/div/div[2]/div/div[2]/div[5]/a') %>% xml_attr("href")
 
-test <- sold_page %>% html_nodes(xpath = '//*[@id="homepage-v2"]/div/div/div[2]/div/div[2]/div/div[2]/div[10]/a') %>% xml_attr("href")
+test <- sold_page %>% html_nodes(xpath = '//*[@id="homepage-v2"]/div/div/div[2]/div/div[2]/div/div[2]/div[80]/a') %>% xml_attr("href")
+```
+
+```{r, warning=FALSE, tidy.opts=list(width.cutoff=80), tidy = TRUE}
+#function to get all 80 guys
+load_data <- function(){
+  
+  #create temp frame
+  temp_frame <- setNames(data.frame(matrix(ncol = 6, nrow = 10)), c("title", "price", "brand", "size", "size", "time"))
+  
+  #redefining function
+  pull_and_store_internal <- function(url){
+  
+    temp <- matrix(ncol = 6, nrow = 1)
+      
+    sold_item_test <- read_html(url)
+    
+    title <- sold_item_test %>% html_nodes('title') %>% html_text()
+    price <- sold_item_test %>% html_nodes('._sold') %>% html_text()
+    brand <- sold_item_test %>% html_nodes('.jumbo') %>% html_text()
+    size <- sold_item_test %>% html_nodes('.listing-size') %>% html_text()
+    
+    script <- sold_item_test %>% html_nodes('script') %>% html_text()
+    
+    time <- script[6]
+    time <- as.character(time)
+    time <- regmatches(time, gregexpr("(?<=sold_at).*(?=sold_price.)", time, perl = TRUE))
+    time <- gsub("[\"]","", time); time <- gsub(",","", time); time <- str_sub(time, 2)
+    
+    user <- script[6]
+    user <- as.character(user)
+    user <- regmatches(user, gregexpr("(?<=username).*(?=avatar_url)", user, perl = TRUE))
+    user <- gsub("[\"]","", user); user <- gsub(",","", user); user <- str_sub(user, 2)
+    
+    temp[1,1] <- title
+    temp[1,2] <- price
+    temp[1,3] <- brand
+    temp[1,4] <- size
+    temp[1,5] <- time
+    temp[1,6] <- user
+    
+    return(temp)
+  }
+  
+  #load up stuff
+  url <- paste0('https://www.grailed.com/sold')
+  lines <- readLines("scrape_sold.js")
+  lines[1] <- paste0("var url ='", url , "';")
+  writeLines(lines, "scrape_sold.js")
+  system("./phantomjs scrape_sold.js")
+  sold_page <- read_html("1.html")
+  
+  #iterate through 80 list
+  for (i in 1:80){
+    temp_url <- sold_page %>% html_nodes(xpath = '//*[@id="homepage-v2"]/div/div/div[2]/div/div[2]/div/div[2]/div[1]/a') %>% xml_attr("href")
+    temp_url <- paste("https://www.grailed.com", temp_url, sep = "")
+    print(temp_url)
+    temp_frame[1,] <- pull_and_store_internal(temp_url)
+    print(temp_frame)
+  }
+}
+
+
+load_data()
 ```
