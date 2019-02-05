@@ -194,7 +194,7 @@ test <- sold_page %>% html_nodes(xpath = '//*[@id="homepage-v2"]/div/div/div[2]/
 load_data <- function(){
   
   #create temp frame
-  temp_frame <- setNames(data.frame(matrix(ncol = 6, nrow = 10)), c("title", "price", "brand", "size", "size", "time"))
+  temp_frame <- setNames(data.frame(matrix(ncol = 6, nrow = 80)), c("title", "price", "brand", "size", "time", "user"))
   
   #redefining function
   pull_and_store_internal <- function(url){
@@ -240,14 +240,17 @@ load_data <- function(){
   
   #iterate through 80 list
   for (i in 1:80){
-    temp_url <- sold_page %>% html_nodes(xpath = '//*[@id="homepage-v2"]/div/div/div[2]/div/div[2]/div/div[2]/div[1]/a') %>% xml_attr("href")
+    created_url <- paste("//*[@id=\"homepage-v2\"]/div/div/div[2]/div/div[2]/div/div[2]/div[", i , "]/a", sep = "")
+    #print(created_url)
+    temp_url <- sold_page %>% html_nodes(xpath = created_url) %>% xml_attr("href")
     temp_url <- paste("https://www.grailed.com", temp_url, sep = "")
     print(temp_url)
-    temp_frame[1,] <- pull_and_store_internal(temp_url)
-    print(temp_frame)
+    temp_frame[i,] <- pull_and_store_internal(temp_url)
   }
+  return(temp_frame)
 }
 
+first_run <- load_data()
 
-load_data()
+first_run
 ```
