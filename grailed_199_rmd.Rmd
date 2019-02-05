@@ -251,6 +251,6 @@ load_data <- function(){
 }
 
 first_run <- load_data()
-
-first_run
+second_run <- load_data()
+third_run <- load_data()
 ```
