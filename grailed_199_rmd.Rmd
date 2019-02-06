@@ -189,6 +189,7 @@ fifth_url <- sold_page %>% html_nodes(xpath = '//*[@id="homepage-v2"]/div/div/di
 test <- sold_page %>% html_nodes(xpath = '//*[@id="homepage-v2"]/div/div/div[2]/div/div[2]/div/div[2]/div[80]/a') %>% xml_attr("href")
 ```
 
+#Automate data retrieval function
 ```{r, warning=FALSE, tidy.opts=list(width.cutoff=80), tidy = TRUE}
 #function to get all 80 guys
 load_data <- function(){
@@ -256,6 +257,12 @@ third_run <- load_data()
 fourth_run <- load_data()
 fifth_run <- load_data()
 sixth_run <- load_data()
+
+start_time <- Sys.time()
+seventh_run <- load_data()
+end_time <- Sys.time()
+
+end_time - start_time
 
 rm(merged)
 # merged <- join(first_run, second_run, by = "title", type = "left")
