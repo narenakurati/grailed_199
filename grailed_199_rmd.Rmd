@@ -271,3 +271,7 @@ merged_1 <- full_join(first_run, sixth_run, by = "title")
 
 ggplot(data = first_run, aes(x=factor(brand))) + geom_bar(stat="count")
 ```
+
+#CURL Package
+```{r}
+```
