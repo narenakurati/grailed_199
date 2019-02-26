@@ -24,6 +24,8 @@ library(tree)
 suppressPackageStartupMessages(library(randomForest))
 library(rvest)
 library(stringr)
+library(curl)
+library(httr)
 ```
 
 #Using rvest to pull first load page of data
@@ -274,4 +276,28 @@ ggplot(data = first_run, aes(x=factor(brand))) + geom_bar(stat="count")
 
 #CURL Package
 ```{r}
+req <- curl_fetch_memory("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query?x-algolia-agent=Algolia%20for%20vanilla%20JavaScript%203.22.3&x-algolia-application-id=MNRWEFSS2Q&x-algolia-api-key=a3a4de2e05d9e9b463911705fb6323ad' -H 'accept: application/json")
+
+req <- curl_fetch_memory("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query")
+
+test <- curl_fetch_memory("https://www.grailed.com/sold/")
+
+result <- POST("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query",
+               verbose(),
+               encode="json",
+               add_headers(`x-algolia-api-key`="a3a4de2e05d9e9b463911705fb6323ad"))
+
+myURL <- sprintf('https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query')
+
+rs <- httr::POST(
+  url = myURL,
+  add_headers(.headers = c("x-algolia-agent" = "Algolia for vanilla JavaScript 3.22.3")),
+  add_headers(.headers = c("x-algolia-application-id" = "MNRWEFSS2Q")),
+  add_headers(.headers = c("x-algolia-api-key" = "a3a4de2e05d9e9b463911705fb6323ad")))
+
+rs$headers
+
+POST("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query?x-algolia-agent=Algolia%20for%20vanilla%20JavaScript%203.22.3&x-algolia-application-id=MNRWEFSS2Q&x-algolia-api-key=a3a4de2e05d9e9b463911705fb6323ad' -H 'accept: application/json")
+
+
 ```
