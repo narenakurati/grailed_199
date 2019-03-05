@@ -384,7 +384,7 @@ ggplot(data = first_run, aes(x=factor(brand))) + geom_bar(stat="count")
 
 ##CLEAN
 ```{r}
-#get 500 hits
+#get 999 hits
 beans <- as.character('{"params":"query=&filters=(strata%3A\'grailed\'%20OR%20strata%3A\'hype\')%20AND%20(marketplace%3Agrailed)&hitsPerPage=999&facets=%5B%22strata%22%2C%22size%22%2C%22category%22%2C%22category_size%22%2C%22category_path%22%2C%22category_path_size%22%2C%22category_path_root_size%22%2C%22price_i%22%2C%22designers.id%22%2C%22location%22%2C%22marketplace%22%2C%22badges%22%5D&page=0"}')
 
 #pull request
@@ -409,5 +409,20 @@ for (i in 1:999){
 
 collected_data
 
+#remove outlier point
+which(collected_data$sold_at == min(as.Date(collected_data$sold_at)))
+collected_data <- collected_data[-which(collected_data$sold_at == min(as.Date(collected_data$sold_at))),]
+
+#time range (about 16 hours)
+range(collected_data$sold_at)
+
+#determine top 10 brands
+collected_data %>% count(designer, sort = TRUE, n = 10)
+
 ggplot(data = collected_data, aes(x=factor(designer))) + geom_bar(stat="count")
+
+ggplot(data = collected_data, aes(x=as.Date(sold_at), y=factor(designer))) + geom_point()
+
+#merge
+merged <- full_join(first_run, fifth_run, by = "title")
 ```
