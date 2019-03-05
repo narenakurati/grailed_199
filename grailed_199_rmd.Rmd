@@ -26,6 +26,7 @@ library(rvest)
 library(stringr)
 library(curl)
 library(httr)
+library(rjson)
 ```
 
 #Using rvest to pull first load page of data
@@ -278,8 +279,6 @@ ggplot(data = first_run, aes(x=factor(brand))) + geom_bar(stat="count")
 ```{r}
 req <- curl_fetch_memory("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query?x-algolia-agent=Algolia%20for%20vanilla%20JavaScript%203.22.3&x-algolia-application-id=MNRWEFSS2Q&x-algolia-api-key=a3a4de2e05d9e9b463911705fb6323ad' -H 'accept: application/json")
 
-req <- curl_fetch_memory("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query")
-
 test <- curl_fetch_memory("https://www.grailed.com/sold/")
 
 result <- POST("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query",
@@ -299,5 +298,40 @@ rs$headers
 
 POST("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query?x-algolia-agent=Algolia%20for%20vanilla%20JavaScript%203.22.3&x-algolia-application-id=MNRWEFSS2Q&x-algolia-api-key=a3a4de2e05d9e9b463911705fb6323ad' -H 'accept: application/json")
 
+req <- curl_fetch_memory("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query")
+str(req)
 
+parse_headers(req$headers)
+
+#jsonlite:prettify(rawToChar()))
+```
+
+##CURL (PARAMS WORKING)
+```{r}
+h <- new_handle()
+#handle_setopt(h)
+
+beans <- as.character('{"params":"query=&filters=(strata%3A\'grailed\'%20OR%20strata%3A\'hype\')%20AND%20(marketplace%3Agrailed)&hitsPerPage=500&facets=%5B%22strata%22%2C%22size%22%2C%22category%22%2C%22category_size%22%2C%22category_path%22%2C%22category_path_size%22%2C%22category_path_root_size%22%2C%22price_i%22%2C%22designers.id%22%2C%22location%22%2C%22marketplace%22%2C%22badges%22%5D&page=0"}')
+
+handle_setform(h, params = beans)
+
+handle_setheaders(h,
+  "Content-Type" = "application/x-www-form-urlencoded"
+)
+
+req <- curl_fetch_memory("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query?x-algolia-agent=Algolia%20for%20vanilla%20JavaScript%203.22.3&x-algolia-application-id=MNRWEFSS2Q&x-algolia-api-key=a3a4de2e05d9e9b463911705fb6323ad", handle = h)
+
+req
+```
+
+
+##HTTR (POST REQUEST WORKING)
+```{r}
+# r <- POST("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query?x-algolia-agent=Algolia%20for%20vanilla%20JavaScript%203.22.3&x-algolia-application-id=MNRWEFSS2Q&x-algolia-api-key=a3a4de2e05d9e9b463911705fb6323ad", body = beans, encode = "form", verbose())
+
+r <- POST("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query?x-algolia-agent=Algolia%20for%20vanilla%20JavaScript%203.22.3&x-algolia-application-id=MNRWEFSS2Q&x-algolia-api-key=a3a4de2e05d9e9b463911705fb6323ad", body = beans, encode = "form")
+
+str(content(r))
+
+json <- fromJSON(file = str(content(r)))
 ```
