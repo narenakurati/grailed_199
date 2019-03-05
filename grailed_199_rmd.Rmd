@@ -311,7 +311,7 @@ parse_headers(req$headers)
 h <- new_handle()
 #handle_setopt(h)
 
-beans <- as.character('{"params":"query=&filters=(strata%3A\'grailed\'%20OR%20strata%3A\'hype\')%20AND%20(marketplace%3Agrailed)&hitsPerPage=500&facets=%5B%22strata%22%2C%22size%22%2C%22category%22%2C%22category_size%22%2C%22category_path%22%2C%22category_path_size%22%2C%22category_path_root_size%22%2C%22price_i%22%2C%22designers.id%22%2C%22location%22%2C%22marketplace%22%2C%22badges%22%5D&page=0"}')
+beans <- as.character('{"params":"query=&filters=(strata%3A\'grailed\'%20OR%20strata%3A\'hype\')%20AND%20(marketplace%3Agrailed)&hitsPerPage=20&facets=%5B%22strata%22%2C%22size%22%2C%22category%22%2C%22category_size%22%2C%22category_path%22%2C%22category_path_size%22%2C%22category_path_root_size%22%2C%22price_i%22%2C%22designers.id%22%2C%22location%22%2C%22marketplace%22%2C%22badges%22%5D&page=0"}')
 
 handle_setform(h, params = beans)
 
@@ -331,7 +331,83 @@ req
 
 r <- POST("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query?x-algolia-agent=Algolia%20for%20vanilla%20JavaScript%203.22.3&x-algolia-application-id=MNRWEFSS2Q&x-algolia-api-key=a3a4de2e05d9e9b463911705fb6323ad", body = beans, encode = "form")
 
-str(content(r))
+r
 
-json <- fromJSON(file = str(content(r)))
+str(content(r))$hits
+
+object <- content(r, "parsed")$hits
+
+object[[1]]$title
+object[[1]]$price
+object[[1]]$sold_at
+object[[1]]$user$username
+object[[1]]$user$total_bought_and_sold
+object[[1]]$designer$name
+object[[1]]$sold_price
+
+collected_data <- data.frame("title" = c(1:500), "price" = c(1:500), "sold_at" = c(1:500), "username" = c(1:500), "bought_and_sold" = c(1:500), "designer" = c(1:500), "sold_price" = c(1:500))
+collected_data
+
+new_data <- data.frame("title", "price", "sold_at", "username", "bought_and_sold", "designer", "sold_price")
+
+object[[1]]$title
+
+for (i in 1:20){
+  collected_data$price[i] <- object[[i]]$title
+  # object[[i]]$price
+  # object[[i]]$sold_at
+  # object[[i]]$user$username
+  # object[[i]]$user$total_bought_and_sold
+  # object[[i]]$designer$name
+  # object[[i]]$sold_price
+}
+
+collected_data
+
+result <- toJSON(object)
+test <- fromJSON(result)
+
+#write(result, "test.json")
+
+str(content(r)$hits) #<- gucci
+json <- str(content(r)$hits)
+json
+
+#test <- readLines(str(content(r)$hits))
+
+head(r)
+
+content(r)$hits[[1]]
+
+ggplot(data = first_run, aes(x=factor(brand))) + geom_bar(stat="count")
+```
+
+##CLEAN
+```{r}
+#get 500 hits
+beans <- as.character('{"params":"query=&filters=(strata%3A\'grailed\'%20OR%20strata%3A\'hype\')%20AND%20(marketplace%3Agrailed)&hitsPerPage=999&facets=%5B%22strata%22%2C%22size%22%2C%22category%22%2C%22category_size%22%2C%22category_path%22%2C%22category_path_size%22%2C%22category_path_root_size%22%2C%22price_i%22%2C%22designers.id%22%2C%22location%22%2C%22marketplace%22%2C%22badges%22%5D&page=0"}')
+
+#pull request
+r <- POST("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query?x-algolia-agent=Algolia%20for%20vanilla%20JavaScript%203.22.3&x-algolia-application-id=MNRWEFSS2Q&x-algolia-api-key=a3a4de2e05d9e9b463911705fb6323ad", body = beans, encode = "form")
+
+#parse the hits
+object <- content(r, "parsed")$hits
+
+#set up dataframe
+collected_data <- data.frame("title" = c(1:999), "price" = c(1:999), "sold_at" = c(1:999), "username" = c(1:999), "bought_and_sold" = c(1:999), "designer" = c(1:999), "sold_price" = c(1:999))
+
+#fill dataframe
+for (i in 1:999){
+  collected_data$title[i] <- object[[i]]$title
+  collected_data$price[i] <- object[[i]]$price
+  collected_data$sold_at[i] <- object[[i]]$sold_at
+  collected_data$username[i] <- object[[i]]$user$username
+  collected_data$bought_and_sold[i] <- object[[i]]$user$total_bought_and_sold
+  collected_data$designer[i] <- object[[i]]$designer$name
+  collected_data$sold_price[i] <- object[[i]]$sold_price
+}
+
+collected_data
+
+ggplot(data = collected_data, aes(x=factor(designer))) + geom_bar(stat="count")
 ```
