@@ -448,21 +448,34 @@ collected_data_reorder$sold_at[1]
 #assign interval values
 max <- as.numeric(trunc((max(collected_data_reorder$sold_at) - min(collected_data_reorder$sold_at)) / (x/24)))
 
-min(collected_data_reorder$sold_at) + x*60*60
-
-which[collected_data_reorder$sold_at]
-
-i <- 1
-j <- 1
-for (i <= max){
-  for (j in length(collected_data_reorder)){
-    if(collected_data_reorder$sold_at[j] <= i*x*60*60){
-      collected_data_reorder$interval[]
-      collected_data_reorder$sold_at[1] + x*60*60
+collected_data_reorder$interval <- 5
+for (j in length(collected_data_reorder)){
+  if(collected_data_reorder$sold_at[j] <= min(collected_data_reorder$sold_at) + i*x*60*60){
+    collected_data_reorder$interval[j] <- i
     }
-  }
+  if(collected_data_reorder$sold_at[j] > min(collected_data_reorder$sold_at) + i*x*60*60){
+    i <- i + 1 
+    }
 }
 
 
+for (i in 1:max){
+while (j <= 1:nrow(collected_data_reorder)){
+  if(collected_data_reorder$sold_at[j] <= (collected_data_reorder$sold_at[1] + i*x*60*60)){
+    collected_data_reorder$interval[j] <- i
+    j = j+1
+  }
+}
+}
+
+i <- 1
+for (i in 1:max){
+  collected_data_reorder$interval[which(collected_data_reorder$sold_at <= (collected_data_reorder$sold_at[1] + i*x*60*60) & collected_data_reorder$sold_at > (collected_data_reorder$sold_at[1] + (i-1)*x*60*60))] <- i
+  }
+}
+
+collected_data_reorder$interval[which(collected_data_reorder$sold_at <= (collected_data_reorder$sold_at[1] + i*x*60*60))] <- i
+
+collected_data_reorder$sold_at[400] <= (collected_data_reorder$sold_at[1] + i*x*60*60)
 
 ```
