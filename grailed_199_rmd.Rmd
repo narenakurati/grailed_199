@@ -407,6 +407,8 @@ for (i in 1:999){
   collected_data$sold_price[i] <- object[[i]]$sold_price
 }
 
+# save(object_one, file = "two.RData")
+
 collected_data
 
 #remove outlier point
