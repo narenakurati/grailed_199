@@ -27,6 +27,7 @@ library(stringr)
 library(curl)
 library(httr)
 library(rjson)
+library(parsedate)
 ```
 
 #Using rvest to pull first load page of data
@@ -390,6 +391,9 @@ beans <- as.character('{"params":"query=&filters=(strata%3A\'grailed\'%20OR%20st
 #pull request
 r <- POST("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query?x-algolia-agent=Algolia%20for%20vanilla%20JavaScript%203.22.3&x-algolia-application-id=MNRWEFSS2Q&x-algolia-api-key=a3a4de2e05d9e9b463911705fb6323ad", body = beans, encode = "form")
 
+#save(r, file = "two.RData")
+#write.csv(collected_data, file = "current.csv")
+
 #parse the hits
 object <- content(r, "parsed")$hits
 
@@ -407,24 +411,58 @@ for (i in 1:999){
   collected_data$sold_price[i] <- object[[i]]$sold_price
 }
 
-# save(object_one, file = "two.RData")
-
 collected_data
 
-#remove outlier point
-which(collected_data$sold_at == min(as.Date(collected_data$sold_at)))
-collected_data <- collected_data[-which(collected_data$sold_at == min(as.Date(collected_data$sold_at))),]
+
+#remove outlier point (not always needed)
+#which(collected_data$sold_at == min(as.Date(collected_data$sold_at)))
+#collected_data <- collected_data[-which(collected_data$sold_at == min(as.Date(collected_data$sold_at))),]
 
 #time range (about 16 hours)
 range(collected_data$sold_at)
 
 #determine top 10 brands
 collected_data %>% count(designer, sort = TRUE, n = 10)
-
 ggplot(data = collected_data, aes(x=factor(designer))) + geom_bar(stat="count")
-
 ggplot(data = collected_data, aes(x=as.Date(sold_at), y=factor(designer))) + geom_point()
 
 #merge
-merged <- full_join(first_run, fifth_run, by = "title")
+#merged <- full_join(first_run, fifth_run, by = "title")
+
+#create time intervals and get count of brands in that time
+range(collected_data$sold_at)
+max(collected_data$sold_at)
+parse_date(max(collected_data$sold_at))
+
+#hour interval
+x <- 3
+
+  #hist(parse_date(collected_data$sold_at), "hours")
+parsed_dates <- parse_date(collected_data$sold_at)
+collected_data_reorder <- collected_data[order(collected_data$sold_at),]
+collected_data_reorder$sold_at <- parse_date(collected_data_reorder$sold_at)
+
+#create three hour interval
+collected_data_reorder$sold_at[1]
+
+#assign interval values
+max <- as.numeric(trunc((max(collected_data_reorder$sold_at) - min(collected_data_reorder$sold_at)) / (x/24)))
+
+min(collected_data_reorder$sold_at) + x*60*60
+
+which[collected_data_reorder$sold_at]
+
+i <- 1
+j <- 1
+for (i <= max){
+  for (j in length(collected_data_reorder)){
+    if(collected_data_reorder$sold_at[j] <= i*x*60*60){
+      collected_data_reorder$interval[]
+      collected_data_reorder$sold_at[1] + x*60*60
+    }
+  }
+}
+
+
+
 ```
