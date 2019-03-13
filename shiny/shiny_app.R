@@ -1,29 +1,23 @@
 library(shinydashboard)
 library(shiny)
+library(ggplot2)
+library(httr)
+library(dplyr)
 
 ui <- dashboardPage(
-  dashboardHeader(title = "Basic dashboard"),
-  dashboardSidebar(),
+  dashboardHeader(title = "Grailed Dashboard"),
+  #dashboardSidebar(),
   dashboardBody(
     # Boxes need to be put in a row (or column)
     fluidRow(
-      box(plotOutput("plot1", height = 250)),
-      
-      box(
-        title = "Controls",
-        sliderInput("slider", "Number of observations:", 1, 100, 50)
-      )
+      box(titel = "Grailed", status = "primary", plotOutput("plot1", height = 250))
     )
   )
 )
 
 server <- function(input, output) {
-  set.seed(122)
-  histdata <- rnorm(500)
-  
   output$plot1 <- renderPlot({
-    data <- histdata[seq_len(input$slider)]
-    hist(data)
+    ggplot(data = test_data_frame, aes(x = interval, y = n, color = designer)) + geom_point() + geom_line() + ylab("number of items sold")
   })
 }
 
