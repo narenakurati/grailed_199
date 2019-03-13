@@ -391,7 +391,7 @@ beans <- as.character('{"params":"query=&filters=(strata%3A\'grailed\'%20OR%20st
 #pull request
 r <- POST("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query?x-algolia-agent=Algolia%20for%20vanilla%20JavaScript%203.22.3&x-algolia-application-id=MNRWEFSS2Q&x-algolia-api-key=a3a4de2e05d9e9b463911705fb6323ad", body = beans, encode = "form")
 
-#save(r, file = "two.RData")
+save(r, file = "four.RData")
 #write.csv(collected_data, file = "current.csv")
 
 #parse the hits
@@ -425,9 +425,9 @@ collected_data
 range(collected_data$sold_at)
 
 #determine top 10 brands
-collected_data %>% count(designer, sort = TRUE, n = 10)
-ggplot(data = collected_data, aes(x=factor(designer))) + geom_bar(stat="count")
-ggplot(data = collected_data, aes(x=as.Date(sold_at), y=factor(designer))) + geom_point()
+collected_data %>% count(designer, sort = TRUE) %>% print(n = 20)
+  #ggplot(data = collected_data, aes(x=factor(designer))) + geom_bar(stat="count")
+  #ggplot(data = collected_data, aes(x=as.Date(sold_at), y=factor(designer))) + geom_point()
 
 #merge
 #merged <- full_join(first_run, fifth_run, by = "title")
@@ -438,13 +438,11 @@ max(collected_data$sold_at)
 parse_date(max(collected_data$sold_at))
 
 #hour interval
-x <- 3
+x <- 6
 
-parsed_dates <- parse_date(collected_data$sold_at)
+  #parsed_dates <- parse_date(collected_data$sold_at)
 collected_data_reorder <- collected_data[order(collected_data$sold_at),]
 collected_data_reorder$sold_at <- parse_date(collected_data_reorder$sold_at)
-
-#create three hour interval
 
 #assign interval values
 max <- as.numeric(trunc((max(collected_data_reorder$sold_at) - min(collected_data_reorder$sold_at)) / (x/24)))
@@ -476,15 +474,123 @@ for (i in 1:(max+1)){
   collected_data_reorder$interval[which(collected_data_reorder$sold_at <= (collected_data_reorder$sold_at[1] + i*x*60*60) & collected_data_reorder$sold_at > (collected_data_reorder$sold_at[1] + (i-1)*x*60*60))] <- i
 }
 
-#quick ggplot to test
-ggplot(data = collected_data_reorder, aes(x = interval)) + geom_bar(stat="count")
+  #quick ggplot to test
+  #ggplot(data = collected_data_reorder, aes(x = interval)) + geom_bar(stat="count")
 
   # collected_data_reorder %>% group_by(interval, designer) %>% summarise(count = n())
   # collected_data_reorder %>% group_by(interval) %>% count(designer)
   # collected_data_reorder %>% group_by(interval) %>% count(designer)
 
-test <- collected_data_reorder %>% count(interval, designer) %>% arrange(interval, desc(n)) %>% group_by(interval) %>% slice(c(2:5))
+#test <- collected_data_reorder %>% count(interval, designer) %>% arrange(interval, desc(n)) %>% group_by(interval) %>% slice(c(1:5))
+test <-  collected_data_reorder %>% filter(designer == c("Supreme", "Bape", "Jordan Brand","Nike", "Vlone", "Balenciaga", "Antisocial Social Club", "Adidas", "Gucci", "Off-White", "Travis Scott")) %>% count(interval, designer) %>% group_by(interval)
 test_data_frame <- as.data.frame(test)
 
 ggplot(data = test_data_frame, aes(x = interval, y = n, color = designer)) + geom_point() + geom_line() + ylab("number of items sold")
+
+#ggplot(data = test_data_frame, aes(x = interval)) + geom_bar(aes(fill=designer))
+```
+
+#Merging together existing data
+```{r}
+
+```
+
+#Above but cleaned up and adding in data merge
+```{r}
+#get 999 hits
+beans <- as.character('{"params":"query=&filters=(strata%3A\'grailed\'%20OR%20strata%3A\'hype\')%20AND%20(marketplace%3Agrailed)&hitsPerPage=999&facets=%5B%22strata%22%2C%22size%22%2C%22category%22%2C%22category_size%22%2C%22category_path%22%2C%22category_path_size%22%2C%22category_path_root_size%22%2C%22price_i%22%2C%22designers.id%22%2C%22location%22%2C%22marketplace%22%2C%22badges%22%5D&page=0"}')
+
+#pull request
+r <- POST("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query?x-algolia-agent=Algolia%20for%20vanilla%20JavaScript%203.22.3&x-algolia-application-id=MNRWEFSS2Q&x-algolia-api-key=a3a4de2e05d9e9b463911705fb6323ad", body = beans, encode = "form")
+
+#parse the hits
+object <- content(r, "parsed")$hits
+
+collected_data <- data.frame("title" = c(1:999), "price" = c(1:999), "sold_at" = c(1:999), "username" = c(1:999), "bought_and_sold" = c(1:999), "designer" = c(1:999), "sold_price" = c(1:999))
+
+#fill dataframe
+for (i in 1:999){
+  collected_data$title[i] <- object[[i]]$title
+  collected_data$price[i] <- object[[i]]$price
+  collected_data$sold_at[i] <- object[[i]]$sold_at
+  collected_data$username[i] <- object[[i]]$user$username
+  collected_data$bought_and_sold[i] <- object[[i]]$user$total_bought_and_sold
+  collected_data$designer[i] <- object[[i]]$designer$name
+  collected_data$sold_price[i] <- object[[i]]$sold_price
+}
+
+#take new data and merge it with old
+
+
+#remove outlier point (not always needed)
+#which(collected_data$sold_at == min(as.Date(collected_data$sold_at)))
+#collected_data <- collected_data[-which(collected_data$sold_at == min(as.Date(collected_data$sold_at))),]
+
+#time range (about 16 hours)
+range(collected_data$sold_at)
+
+#determine top 10 brands
+collected_data %>% count(designer, sort = TRUE) %>% print(n = 20)
+  #ggplot(data = collected_data, aes(x=factor(designer))) + geom_bar(stat="count")
+  #ggplot(data = collected_data, aes(x=as.Date(sold_at), y=factor(designer))) + geom_point()
+
+#merge
+#merged <- full_join(first_run, fifth_run, by = "title")
+
+#create time intervals and get count of brands in that time
+range(collected_data$sold_at)
+max(collected_data$sold_at)
+parse_date(max(collected_data$sold_at))
+
+#hour interval
+x <- 6
+
+  #parsed_dates <- parse_date(collected_data$sold_at)
+collected_data_reorder <- collected_data[order(collected_data$sold_at),]
+collected_data_reorder$sold_at <- parse_date(collected_data_reorder$sold_at)
+
+#assign interval values
+max <- as.numeric(trunc((max(collected_data_reorder$sold_at) - min(collected_data_reorder$sold_at)) / (x/24)))
+
+  # collected_data_reorder$interval <- 5
+  # for (j in length(collected_data_reorder)){
+  #   if(collected_data_reorder$sold_at[j] <= min(collected_data_reorder$sold_at) + i*x*60*60){
+  #     collected_data_reorder$interval[j] <- i
+  #     }
+  #   if(collected_data_reorder$sold_at[j] > min(collected_data_reorder$sold_at) + i*x*60*60){
+  #     i <- i + 1 
+  #     }
+  # }
+  # 
+  # 
+  # for (i in 1:max){
+  # while (j <= 1:nrow(collected_data_reorder)){
+  #   if(collected_data_reorder$sold_at[j] <= (collected_data_reorder$sold_at[1] + i*x*60*60)){
+  #     collected_data_reorder$interval[j] <- i
+  #     j = j+1
+  #   }
+  # }
+  # }
+
+#working interval assignment
+i <- 1
+collected_data_reorder$interval <- 1
+for (i in 1:(max+1)){
+  collected_data_reorder$interval[which(collected_data_reorder$sold_at <= (collected_data_reorder$sold_at[1] + i*x*60*60) & collected_data_reorder$sold_at > (collected_data_reorder$sold_at[1] + (i-1)*x*60*60))] <- i
+}
+
+  #quick ggplot to test
+  #ggplot(data = collected_data_reorder, aes(x = interval)) + geom_bar(stat="count")
+
+  # collected_data_reorder %>% group_by(interval, designer) %>% summarise(count = n())
+  # collected_data_reorder %>% group_by(interval) %>% count(designer)
+  # collected_data_reorder %>% group_by(interval) %>% count(designer)
+
+#test <- collected_data_reorder %>% count(interval, designer) %>% arrange(interval, desc(n)) %>% group_by(interval) %>% slice(c(1:5))
+test <-  collected_data_reorder %>% filter(designer == c("Supreme", "Bape", "Jordan Brand","Nike", "Vlone", "Balenciaga", "Antisocial Social Club", "Adidas", "Gucci", "Off-White", "Travis Scott")) %>% count(interval, designer) %>% group_by(interval)
+test_data_frame <- as.data.frame(test)
+
+ggplot(data = test_data_frame, aes(x = interval, y = n, color = designer)) + geom_point() + geom_line() + ylab("number of items sold")
+
+#ggplot(data = test_data_frame, aes(x = interval)) + geom_bar(aes(fill=designer))
 ```
