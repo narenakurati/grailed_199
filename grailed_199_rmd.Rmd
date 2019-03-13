@@ -398,6 +398,9 @@ r <- POST("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/
 object <- content(r, "parsed")$hits
 
 #set up dataframe
+#collected_data_2 <- collected_data
+  #preserve current working data
+
 collected_data <- data.frame("title" = c(1:999), "price" = c(1:999), "sold_at" = c(1:999), "username" = c(1:999), "bought_and_sold" = c(1:999), "designer" = c(1:999), "sold_price" = c(1:999))
 
 #fill dataframe
@@ -437,13 +440,11 @@ parse_date(max(collected_data$sold_at))
 #hour interval
 x <- 3
 
-  #hist(parse_date(collected_data$sold_at), "hours")
 parsed_dates <- parse_date(collected_data$sold_at)
 collected_data_reorder <- collected_data[order(collected_data$sold_at),]
 collected_data_reorder$sold_at <- parse_date(collected_data_reorder$sold_at)
 
 #create three hour interval
-collected_data_reorder$sold_at[1]
 
 #assign interval values
 max <- as.numeric(trunc((max(collected_data_reorder$sold_at) - min(collected_data_reorder$sold_at)) / (x/24)))
@@ -470,6 +471,7 @@ max <- as.numeric(trunc((max(collected_data_reorder$sold_at) - min(collected_dat
 
 #working interval assignment
 i <- 1
+collected_data_reorder$interval <- 1
 for (i in 1:(max+1)){
   collected_data_reorder$interval[which(collected_data_reorder$sold_at <= (collected_data_reorder$sold_at[1] + i*x*60*60) & collected_data_reorder$sold_at > (collected_data_reorder$sold_at[1] + (i-1)*x*60*60))] <- i
 }
@@ -477,9 +479,12 @@ for (i in 1:(max+1)){
 #quick ggplot to test
 ggplot(data = collected_data_reorder, aes(x = interval)) + geom_bar(stat="count")
 
-test <- collected_data_reorder %>% group_by(interval) %>% count(designer)
-test_data_frame <- as.data.frame(test)
-test_data_frame
+  # collected_data_reorder %>% group_by(interval, designer) %>% summarise(count = n())
+  # collected_data_reorder %>% group_by(interval) %>% count(designer)
+  # collected_data_reorder %>% group_by(interval) %>% count(designer)
 
-ggplot(data = collected_data_reorder, aes(x = interval, y = designer)) + geom_bar(stat="count")
+test <- collected_data_reorder %>% count(interval, designer) %>% arrange(interval, desc(n)) %>% group_by(interval) %>% slice(c(2:5))
+test_data_frame <- as.data.frame(test)
+
+ggplot(data = test_data_frame, aes(x = interval, y = n, color = designer)) + geom_point() + geom_line() + ylab("number of items sold")
 ```
