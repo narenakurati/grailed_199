@@ -392,7 +392,7 @@ beans <- as.character('{"params":"query=&filters=(strata%3A\'grailed\'%20OR%20st
 #pull request
 r <- POST("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query?x-algolia-agent=Algolia%20for%20vanilla%20JavaScript%203.22.3&x-algolia-application-id=MNRWEFSS2Q&x-algolia-api-key=a3a4de2e05d9e9b463911705fb6323ad", body = beans, encode = "form")
 
-save(r, file = "four.RData")
+save(r, file = "ADD IN NAME HERE.RData")
 #write.csv(collected_data, file = "current.csv")
 
 #parse the hits
@@ -564,9 +564,10 @@ pull_and_merge_data <- function(){
   for (i in 1:(max+1)){
     collected_data_reorder$interval[which(collected_data_reorder$sold_at <= (collected_data_reorder$sold_at[1] + i*x*60*60) & collected_data_reorder$sold_at > (collected_data_reorder$sold_at[1] + (i-1)*x*60*60))] <- i
   }
-
+  
+  write.csv(collected_data_reorder, file = "cleaned_agg_data.csv")
+  print("CSV has been written")
   return(collected_data_reorder)
-  print("Done")
 }
 
 # tclTaskSchedule(1000, pull_and_merge_data(), id = "test", redo = TRUE)
@@ -632,4 +633,15 @@ test <-  collected_data_reorder %>% filter(designer == c("Supreme", "Bape", "Jor
 test_data_frame <- as.data.frame(test)
 
 ggplot(data = test_data_frame, aes(x = interval, y = n, color = designer)) + geom_point() + geom_line() + ylab("number of items sold")
+```
+
+#Full Save Backups (Every 12 Hours)
+```{r}
+#get 999 hits
+beans <- as.character('{"params":"query=&filters=(strata%3A\'grailed\'%20OR%20strata%3A\'hype\')%20AND%20(marketplace%3Agrailed)&hitsPerPage=999&facets=%5B%22strata%22%2C%22size%22%2C%22category%22%2C%22category_size%22%2C%22category_path%22%2C%22category_path_size%22%2C%22category_path_root_size%22%2C%22price_i%22%2C%22designers.id%22%2C%22location%22%2C%22marketplace%22%2C%22badges%22%5D&page=0"}')
+
+#pull request
+r <- POST("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query?x-algolia-agent=Algolia%20for
+
+save(r, file = "five.RData")
 ```

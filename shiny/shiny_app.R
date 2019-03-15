@@ -6,11 +6,11 @@ library(dplyr)
 
 ui <- dashboardPage(
   dashboardHeader(title = "Grailed Dashboard"),
-  #dashboardSidebar(),
+  dashboardSidebar(),
   dashboardBody(
     # Boxes need to be put in a row (or column)
     fluidRow(
-      box(titel = "Grailed", status = "primary", plotOutput("plot1", height = 250))
+      box(titel = "Grailed", status = "primary", plotOutput("plot1", height = 600, width = 600))
     )
   )
 )
