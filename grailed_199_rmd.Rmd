@@ -392,7 +392,7 @@ beans <- as.character('{"params":"query=&filters=(strata%3A\'grailed\'%20OR%20st
 #pull request
 r <- POST("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query?x-algolia-agent=Algolia%20for%20vanilla%20JavaScript%203.22.3&x-algolia-application-id=MNRWEFSS2Q&x-algolia-api-key=a3a4de2e05d9e9b463911705fb6323ad", body = beans, encode = "form")
 
-save(r, file = "ADD IN NAME HERE.RData")
+save(r, file = "six.RData")
 #write.csv(collected_data, file = "current.csv")
 
 #parse the hits
