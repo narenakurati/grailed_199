@@ -392,7 +392,7 @@ beans <- as.character('{"params":"query=&filters=(strata%3A\'grailed\'%20OR%20st
 #pull request
 r <- POST("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query?x-algolia-agent=Algolia%20for%20vanilla%20JavaScript%203.22.3&x-algolia-application-id=MNRWEFSS2Q&x-algolia-api-key=a3a4de2e05d9e9b463911705fb6323ad", body = beans, encode = "form")
 
-save(r, file = "six.RData")
+save(r, file = "nine.RData")
 #write.csv(collected_data, file = "current.csv")
 
 #parse the hits
@@ -635,13 +635,7 @@ test_data_frame <- as.data.frame(test)
 ggplot(data = test_data_frame, aes(x = interval, y = n, color = designer)) + geom_point() + geom_line() + ylab("number of items sold")
 ```
 
-#Full Save Backups (Every 12 Hours)
+#Pull_and_merge ERROR FIXING
 ```{r}
-#get 999 hits
-beans <- as.character('{"params":"query=&filters=(strata%3A\'grailed\'%20OR%20strata%3A\'hype\')%20AND%20(marketplace%3Agrailed)&hitsPerPage=999&facets=%5B%22strata%22%2C%22size%22%2C%22category%22%2C%22category_size%22%2C%22category_path%22%2C%22category_path_size%22%2C%22category_path_root_size%22%2C%22price_i%22%2C%22designers.id%22%2C%22location%22%2C%22marketplace%22%2C%22badges%22%5D&page=0"}')
 
-#pull request
-r <- POST("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query?x-algolia-agent=Algolia%20for
-
-save(r, file = "five.RData")
 ```
