@@ -17,7 +17,7 @@ ui <- dashboardPage(
 
 server <- function(input, output) {
   output$plot1 <- renderPlot({
-    ggplot(data = test_data_frame, aes(x = interval, y = n, color = designer)) + geom_point() + geom_line() + ylab("number of items sold")
+    ggplot(data = test, aes(x = interval, y = n, color = designer)) + geom_point() + geom_line() + ylab("number of items sold")
   })
 }
 
