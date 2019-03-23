@@ -392,7 +392,11 @@ beans <- as.character('{"params":"query=&filters=(strata%3A\'grailed\'%20OR%20st
 #pull request
 r <- POST("https://mnrwefss2q-dsn.algolia.net/1/indexes/Listing_sold_production/query?x-algolia-agent=Algolia%20for%20vanilla%20JavaScript%203.22.3&x-algolia-application-id=MNRWEFSS2Q&x-algolia-api-key=a3a4de2e05d9e9b463911705fb6323ad", body = beans, encode = "form")
 
-save(r, file = "16.RData")
+start_time <- Sys.time()
+save(r, file = "18.RData")
+end_time <- Sys.time()
+
+end_time - start_time
 #write.csv(collected_data, file = "current.csv")
 
 #parse the hits
@@ -662,6 +666,9 @@ backup <- rbind(base_data,c)
 
 #FIXED PULL AND MERGE
 ```{r}
+backup <- read.csv("cleaned_agg_data.csv")
+backup <- backup[,c(2:9)]
+
 pull_and_merge_data <- function(){
   #get 999 hits
   beans <- as.character('{"params":"query=&filters=(strata%3A\'grailed\'%20OR%20strata%3A\'hype\')%20AND%20(marketplace%3Agrailed)&hitsPerPage=999&facets=%5B%22strata%22%2C%22size%22%2C%22category%22%2C%22category_size%22%2C%22category_path%22%2C%22category_path_size%22%2C%22category_path_root_size%22%2C%22price_i%22%2C%22designers.id%22%2C%22location%22%2C%22marketplace%22%2C%22badges%22%5D&page=0"}')
@@ -693,7 +700,7 @@ pull_and_merge_data <- function(){
   # collected_data <- rbind(collected_data,c)
   
   #interval assignment
-  x <- 10
+  x <- 12
   
   collected_data_reorder <- backup[order(backup$sold_at),]
   collected_data_reorder$sold_at <- parse_date(collected_data_reorder$sold_at)
@@ -717,6 +724,7 @@ backup <- pull_and_merge_data()
 # backup <- backup_2
 
 test <-  backup %>% filter(designer == c("Supreme", "Bape", "Jordan Brand","Nike", "Vlone", "Balenciaga", "Antisocial Social Club", "Adidas", "Gucci", "Off-White", "Travis Scott")) %>% count(interval, designer) %>% group_by(interval)
+
 test_data_frame <- as.data.frame(test)
 
 ggplot(data = test_data_frame, aes(x = interval, y = n, color = designer)) + geom_point() + geom_line() + ylab("number of items sold")
